@@ -32,16 +32,37 @@ pub enum Direction {
     Right,
 }
 
-#[derive(Component, Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Rotation {
+    Clockwise,
+    CounterClockwise
+}
+
+#[derive(Component, Debug, Default)]
 #[storage(VecStorage)]
 pub struct KeyboardControlled {
     pub speed: i32,
+    pub rotation_speed: i32
 }
 
-/// The current speed and direction of a given entity
+#[derive(Component, Debug, Default)]
+#[storage(VecStorage)]
+pub struct Angle {
+    pub angle: i32
+}
+
+/// The current speed and Direction of a given entity
 #[derive(Component, Debug)]
 #[storage(VecStorage)]
 pub struct Velocity {
     pub speed: i32,
     pub direction: Direction,
+}
+
+/// The current speed and Rotation of a given entity
+#[derive(Component, Debug)]
+#[storage(VecStorage)]
+pub struct AngularVelocity {
+    pub speed: i32,
+    pub rotation: Rotation,
 }

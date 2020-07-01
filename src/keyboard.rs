@@ -1,3 +1,4 @@
+use crate::components::AngularVelocity;
 use crate::components::KeyboardControlled;
 use crate::components::Velocity;
 use specs::join::Join;
@@ -7,10 +8,11 @@ use specs::ReadStorage;
 use specs::System;
 
 use super::MovementCommand;
+use super::RotationCommand;
 
-pub struct Keyboard;
+pub struct KeyboardMove;
 
-impl<'a> System<'a> for Keyboard {
+impl<'a> System<'a> for KeyboardMove {
     type SystemData = (
         ReadExpect<'a, Option<MovementCommand>>,
         ReadStorage<'a, KeyboardControlled>,
@@ -32,6 +34,35 @@ impl<'a> System<'a> for Keyboard {
                     vel.direction = direction;
                 }
                 MovementCommand::Stop => vel.speed = 0,
+            }
+        }
+    }
+}
+
+pub struct KeyboardRotate;
+
+impl<'a> System<'a> for KeyboardRotate {
+    type SystemData = (
+        ReadExpect<'a, Option<RotationCommand>>,
+        ReadStorage<'a, KeyboardControlled>,
+        WriteStorage<'a, AngularVelocity>,
+    );
+
+    fn run(&mut self, mut data: Self::SystemData) {
+        //TODO: This code can be made nicer and more idiomatic using more pattern matching.
+        // Look up "rust irrefutable patterns" and use them here.
+        let rotation_command = match &*data.0 {
+            Some(rotation_command) => rotation_command,
+            None => return, // no change
+        };
+        
+        for (control, agular_velocity) in (&data.1, &mut data.2).join() {
+            match rotation_command {
+                &RotationCommand::Move(rotation) => {
+                    agular_velocity.speed = control.speed;
+                    agular_velocity.rotation = rotation;
+                }
+                RotationCommand::Stop => agular_velocity.speed = 0,
             }
         }
     }

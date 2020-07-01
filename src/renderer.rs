@@ -1,3 +1,4 @@
+use crate::components::Angle;
 use crate::components::LayeredSprite;
 use crate::components::Position;
 use crate::components::Sprite;
@@ -12,12 +13,14 @@ pub type SystemData<'a> = (
     ReadStorage<'a, Position>,
     ReadStorage<'a, Sprite>,
     ReadStorage<'a, LayeredSprite>,
+    ReadStorage<'a, Angle>,
 );
 
 /// Private fn to render a sprite
 fn render_sprite(
     canvas: &mut WindowCanvas,
     pos: &Position,
+    angle: i32,
     sprite: &Sprite,
     textures: &[Texture],
 ) -> Result<(), String> {
@@ -32,7 +35,7 @@ fn render_sprite(
         current_frame.width(),
         current_frame.height(),
     );
-    canvas.copy(&textures[sprite.spritesheet], current_frame, screen_rect)?;
+    canvas.copy_ex(&textures[sprite.spritesheet], current_frame, screen_rect, angle.into(), current_frame.center(), false, false)?;
 
     Ok(())
 }
@@ -46,13 +49,13 @@ pub fn render(
     canvas.set_draw_color(background);
     canvas.clear();
 
-    for (pos, sprite) in (&data.0, &data.1).join() {
-        render_sprite(canvas, pos, sprite, textures)?;
+    for (pos, sprite, angle) in (&data.0, &data.1, &data.3).join() {
+        render_sprite(canvas, pos, angle.angle, sprite, textures)?;
     }
 
-    for (pos, sprite_layer) in (&data.0, &data.2).join() {
+    for (pos, sprite_layer, angle) in (&data.0, &data.2, &data.3).join() {
         for sprite in &sprite_layer.sprites {
-            render_sprite(canvas, pos, sprite, textures)?;
+            render_sprite(canvas, pos, angle.angle, sprite, textures)?;
         }
     }
 

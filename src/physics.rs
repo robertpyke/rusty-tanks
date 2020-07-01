@@ -1,6 +1,9 @@
+use crate::components::Angle;
+use crate::components::AngularVelocity;
 use crate::components::Direction;
 use crate::components::Position;
 use crate::components::Velocity;
+use crate::components::Rotation;
 use specs::storage::WriteStorage;
 
 use specs::ReadStorage;
@@ -10,7 +13,7 @@ use specs::join::Join;
 pub struct Physics;
 
 impl<'a> System<'a> for Physics {
-    type SystemData = (WriteStorage<'a, Position>, ReadStorage<'a, Velocity>);
+    type SystemData = (WriteStorage<'a, Position>, ReadStorage<'a, Velocity>, WriteStorage<'a, Angle>, ReadStorage<'a, AngularVelocity>);
 
     fn run(&mut self, mut data: Self::SystemData) {
         use self::Direction::*;
@@ -29,6 +32,17 @@ impl<'a> System<'a> for Physics {
                 }
                 Down => {
                     pos.0 = pos.0.offset(0, vel.speed);
+                }
+            }
+        }
+
+        for (angle, angular_vel) in (&mut data.2, &data.3).join() {
+            match angular_vel.rotation {
+                Rotation::Clockwise => {
+                    angle.angle += angular_vel.speed;
+                }
+                Rotation::CounterClockwise => {
+                    angle.angle -= angular_vel.speed;
                 }
             }
         }

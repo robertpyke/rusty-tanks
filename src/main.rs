@@ -3,7 +3,10 @@ mod keyboard;
 mod physics;
 mod renderer;
 
+use crate::components::Angle;
+use crate::components::AngularVelocity;
 use crate::components::Direction;
+use crate::components::Rotation;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use specs::world::Builder;
@@ -12,7 +15,7 @@ use std::time::Duration;
 use sdl2::pixels::Color;
 use sdl2::rect::{Point, Rect};
 // "self" imports the "image" module itself as well as everything else we listed
-use sdl2::image::{LoadTexture};
+use sdl2::image::LoadTexture;
 
 use specs::prelude::{DispatcherBuilder, SystemData, World};
 
@@ -21,6 +24,11 @@ use crate::components::{KeyboardControlled, LayeredSprite, Position, Sprite, Vel
 pub enum MovementCommand {
     Stop,
     Move(Direction),
+}
+
+pub enum RotationCommand {
+    Stop,
+    Move(Rotation),
 }
 
 fn initialize_tank(world: &mut World, tank_base_sprite: usize, tank_turret_sprite: usize) {
@@ -36,11 +44,16 @@ fn initialize_tank(world: &mut World, tank_base_sprite: usize, tank_turret_sprit
     world
         .create_entity()
         .with(Position(Point::new(0, 0)))
+        .with(Angle {angle: 0})
         .with(LayeredSprite { sprites: sprites })
-        .with(KeyboardControlled { speed: 20 })
+        .with(KeyboardControlled { speed: 20, rotation_speed: 1 })
         .with(Velocity {
             speed: 0,
             direction: Direction::Right,
+        })
+        .with(AngularVelocity {
+            speed: 0,
+            rotation: Rotation::Clockwise,
         })
         .build();
 }
@@ -63,8 +76,9 @@ fn main() -> Result<(), String> {
     let texture_creator = canvas.texture_creator();
 
     let mut dispatcher = DispatcherBuilder::new()
-        .with(keyboard::Keyboard, "Keyboard", &[])
-        .with(physics::Physics, "Physics", &["Keyboard"])
+        .with(keyboard::KeyboardMove, "KeyboardMove", &[])
+        .with(keyboard::KeyboardRotate, "KeyboardRotate", &[])
+        .with(physics::Physics, "Physics", &["KeyboardMove", "KeyboardRotate"])
         .build();
 
     let mut world = World::new();
@@ -74,6 +88,9 @@ fn main() -> Result<(), String> {
     // Initialize resource
     let movement_command: Option<MovementCommand> = None;
     world.add_resource(movement_command);
+
+    let rotation_command: Option<RotationCommand> = None;
+    world.add_resource(rotation_command);
 
     let textures = [
         texture_creator.load_texture("resources/assets/tank/bullet.png")?,
@@ -88,6 +105,7 @@ fn main() -> Result<(), String> {
     'running: loop {
         // None - no change, Some(MovementCommand) - perform movement
         let mut movement_command = None;
+        let mut rotation_command = None;
 
         // Handle events
         for event in event_pump.poll_iter() {
@@ -128,6 +146,22 @@ fn main() -> Result<(), String> {
                     movement_command = Some(MovementCommand::Move(Direction::Down));
                 }
 
+                // rotate
+                Event::KeyDown {
+                    keycode: Some(Keycode::Q),
+                    repeat: false,
+                    ..
+                } => {
+                    rotation_command = Some(RotationCommand::Move(Rotation::CounterClockwise));
+                }
+                Event::KeyDown {
+                    keycode: Some(Keycode::E),
+                    repeat: false,
+                    ..
+                } => {
+                    rotation_command = Some(RotationCommand::Move(Rotation::Clockwise));
+                }
+
                 // stop
                 Event::KeyUp {
                     keycode: Some(Keycode::Left),
@@ -151,11 +185,28 @@ fn main() -> Result<(), String> {
                 } => {
                     movement_command = Some(MovementCommand::Stop);
                 }
+
+                // stop rotate
+                Event::KeyUp {
+                    keycode: Some(Keycode::Q),
+                    repeat: false,
+                    ..
+                }
+                | Event::KeyUp {
+                    keycode: Some(Keycode::E),
+                    repeat: false,
+                    ..
+                } => {
+                    rotation_command = Some(RotationCommand::Stop);
+                }
+
                 _ => {}
+
             }
         }
 
         *world.write_resource() = movement_command;
+        *world.write_resource() = rotation_command;
 
         // Update
         dispatcher.dispatch(&mut world.res);
