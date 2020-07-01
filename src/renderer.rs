@@ -1,12 +1,11 @@
-
 use crate::components::LayeredSprite;
-use crate::components::Sprite;
 use crate::components::Position;
-use specs::{ReadStorage};
-use sdl2::rect::{Point, Rect};
+use crate::components::Sprite;
 use sdl2::pixels::Color;
-use sdl2::render::{WindowCanvas, Texture};
+use sdl2::rect::{Point, Rect};
+use sdl2::render::{Texture, WindowCanvas};
 use specs::join::Join;
+use specs::ReadStorage;
 
 // Type alias for the data needed by the renderer
 pub type SystemData<'a> = (
@@ -20,20 +19,23 @@ fn render_sprite(
     canvas: &mut WindowCanvas,
     pos: &Position,
     sprite: &Sprite,
-    textures: &[Texture]
-)  -> Result<(), String> {
+    textures: &[Texture],
+) -> Result<(), String> {
     let (width, height) = canvas.output_size()?;
 
-    println!("Sprite: -> Result<(), String> {:?}", sprite);
+    // println!("Sprite: -> Result<(), String> {:?}", sprite);
     let current_frame = sprite.region;
     // Treat the center of the screen as the (0, 0) coordinate
     let screen_position = pos.0 + Point::new(width as i32 / 2, height as i32 / 2);
-    let screen_rect = Rect::from_center(screen_position, current_frame.width(), current_frame.height());
+    let screen_rect = Rect::from_center(
+        screen_position,
+        current_frame.width(),
+        current_frame.height(),
+    );
     canvas.copy(&textures[sprite.spritesheet], current_frame, screen_rect)?;
 
     Ok(())
 }
-
 
 pub fn render(
     canvas: &mut WindowCanvas,

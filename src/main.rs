@@ -1,21 +1,22 @@
-mod renderer;
 mod components;
+mod keyboard;
+mod physics;
+mod renderer;
 
 use crate::components::Direction;
-use specs::world::Builder;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
+use specs::world::Builder;
 use std::time::Duration;
-
 
 use sdl2::pixels::Color;
 use sdl2::rect::{Point, Rect};
 // "self" imports the "image" module itself as well as everything else we listed
-use sdl2::image::{self, LoadTexture, InitFlag};
+use sdl2::image::{LoadTexture};
 
-use specs::prelude::{Dispatcher, DispatcherBuilder, World, SystemData};
+use specs::prelude::{DispatcherBuilder, SystemData, World};
 
-use crate::components::{Position, Sprite, LayeredSprite};
+use crate::components::{KeyboardControlled, LayeredSprite, Position, Sprite, Velocity};
 
 pub enum MovementCommand {
     Stop,
@@ -23,12 +24,24 @@ pub enum MovementCommand {
 }
 
 fn initialize_tank(world: &mut World, tank_base_sprite: usize, tank_turret_sprite: usize) {
-    let a = Sprite {spritesheet: tank_base_sprite, region: Rect::new(0, 0, 32, 32)};
-    let b = Sprite {spritesheet: tank_turret_sprite, region: Rect::new(0, 0, 32, 32)};
-    let sprites = vec![a,b];
-    world.create_entity()
+    let a = Sprite {
+        spritesheet: tank_base_sprite,
+        region: Rect::new(0, 0, 32, 32),
+    };
+    let b = Sprite {
+        spritesheet: tank_turret_sprite,
+        region: Rect::new(0, 0, 32, 32),
+    };
+    let sprites = vec![a, b];
+    world
+        .create_entity()
         .with(Position(Point::new(0, 0)))
-        .with(LayeredSprite {sprites: sprites})
+        .with(LayeredSprite { sprites: sprites })
+        .with(KeyboardControlled { speed: 20 })
+        .with(Velocity {
+            speed: 0,
+            direction: Direction::Right,
+        })
         .build();
 }
 
@@ -36,19 +49,23 @@ fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
 
-    let window = video_subsystem.window("rusty-tanks", 800, 600)
+    let window = video_subsystem
+        .window("rusty-tanks", 800, 600)
         .position_centered()
         .build()
         .expect("could not initialize video subsystem");
 
-    let mut canvas = window.into_canvas().build()
+    let mut canvas = window
+        .into_canvas()
+        .build()
         .expect("could not make a canvas");
 
     let texture_creator = canvas.texture_creator();
 
     let mut dispatcher = DispatcherBuilder::new()
+        .with(keyboard::Keyboard, "Keyboard", &[])
+        .with(physics::Physics, "Physics", &["Keyboard"])
         .build();
-    
 
     let mut world = World::new();
     dispatcher.setup(&mut world.res);
@@ -75,32 +92,65 @@ fn main() -> Result<(), String> {
         // Handle events
         for event in event_pump.poll_iter() {
             match event {
-                Event::Quit {..} |
-                Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
-                    break 'running
-                },
+                Event::Quit { .. }
+                | Event::KeyDown {
+                    keycode: Some(Keycode::Escape),
+                    ..
+                } => break 'running,
 
                 // go
-                Event::KeyDown { keycode: Some(Keycode::Left), repeat: false, .. } => {
+                Event::KeyDown {
+                    keycode: Some(Keycode::Left),
+                    repeat: false,
+                    ..
+                } => {
                     movement_command = Some(MovementCommand::Move(Direction::Left));
-                },
-                Event::KeyDown { keycode: Some(Keycode::Right), repeat: false, .. } => {
+                }
+                Event::KeyDown {
+                    keycode: Some(Keycode::Right),
+                    repeat: false,
+                    ..
+                } => {
                     movement_command = Some(MovementCommand::Move(Direction::Right));
-                },
-                Event::KeyDown { keycode: Some(Keycode::Up), repeat: false, .. } => {
+                }
+                Event::KeyDown {
+                    keycode: Some(Keycode::Up),
+                    repeat: false,
+                    ..
+                } => {
                     movement_command = Some(MovementCommand::Move(Direction::Up));
-                },
-                Event::KeyDown { keycode: Some(Keycode::Down), repeat: false, .. } => {
+                }
+                Event::KeyDown {
+                    keycode: Some(Keycode::Down),
+                    repeat: false,
+                    ..
+                } => {
                     movement_command = Some(MovementCommand::Move(Direction::Down));
-                },
+                }
 
                 // stop
-                Event::KeyUp { keycode: Some(Keycode::Left), repeat: false, .. } |
-                Event::KeyUp { keycode: Some(Keycode::Right), repeat: false, .. } |
-                Event::KeyUp { keycode: Some(Keycode::Up), repeat: false, .. } |
-                Event::KeyUp { keycode: Some(Keycode::Down), repeat: false, .. } => {
+                Event::KeyUp {
+                    keycode: Some(Keycode::Left),
+                    repeat: false,
+                    ..
+                }
+                | Event::KeyUp {
+                    keycode: Some(Keycode::Right),
+                    repeat: false,
+                    ..
+                }
+                | Event::KeyUp {
+                    keycode: Some(Keycode::Up),
+                    repeat: false,
+                    ..
+                }
+                | Event::KeyUp {
+                    keycode: Some(Keycode::Down),
+                    repeat: false,
+                    ..
+                } => {
                     movement_command = Some(MovementCommand::Stop);
-                },
+                }
                 _ => {}
             }
         }
@@ -113,7 +163,12 @@ fn main() -> Result<(), String> {
 
         // Render
         i = (i + 1) % 255;
-        renderer::render(&mut canvas, Color::RGB(i, 64, 255 - i), &textures, world.system_data())?;
+        renderer::render(
+            &mut canvas,
+            Color::RGB(i, 64, 255 - i),
+            &textures,
+            world.system_data(),
+        )?;
 
         // Time management!
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 20));
