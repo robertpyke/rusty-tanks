@@ -12,14 +12,13 @@ use sdl2::keyboard::Keycode;
 use specs::world::Builder;
 use std::time::Duration;
 
+use sdl2::image::LoadTexture;
 use sdl2::pixels::Color;
 use sdl2::rect::{Point, Rect};
-// "self" imports the "image" module itself as well as everything else we listed
-use sdl2::image::LoadTexture;
 
 use specs::prelude::{DispatcherBuilder, SystemData, World};
 
-use crate::components::{KeyboardControlled, LayeredSprite, Position, Sprite, Velocity};
+use crate::components::{KeyboardControlled, Position, Sprite, Velocity};
 
 pub enum MovementCommand {
     Stop,
@@ -32,21 +31,38 @@ pub enum RotationCommand {
 }
 
 fn initialize_tank(world: &mut World, tank_base_sprite: usize, tank_turret_sprite: usize) {
-    let a = Sprite {
-        spritesheet: tank_base_sprite,
-        region: Rect::new(0, 0, 32, 32),
-    };
-    let b = Sprite {
-        spritesheet: tank_turret_sprite,
-        region: Rect::new(0, 0, 32, 32),
-    };
-    let sprites = vec![a, b];
+    // Init the base
     world
         .create_entity()
         .with(Position(Point::new(0, 0)))
-        .with(Angle {angle: 0})
-        .with(LayeredSprite { sprites: sprites })
-        .with(KeyboardControlled { speed: 20, rotation_speed: 1 })
+        .with(Angle { angle: 0 })
+        .with(Sprite {
+            spritesheet: tank_base_sprite,
+            region: Rect::new(0, 0, 32, 32),
+        })
+        .with(KeyboardControlled {
+            speed: 20,
+            rotation_speed: 1,
+        })
+        .with(Velocity {
+            speed: 0,
+            direction: Direction::Right,
+        })
+        .build();
+
+    // Init the turret
+    world
+        .create_entity()
+        .with(Position(Point::new(0, 0)))
+        .with(Angle { angle: 0 })
+        .with(Sprite {
+            spritesheet: tank_turret_sprite,
+            region: Rect::new(0, 0, 32, 32),
+        })
+        .with(KeyboardControlled {
+            speed: 20,
+            rotation_speed: 1,
+        })
         .with(Velocity {
             speed: 0,
             direction: Direction::Right,
@@ -78,7 +94,11 @@ fn main() -> Result<(), String> {
     let mut dispatcher = DispatcherBuilder::new()
         .with(keyboard::KeyboardMove, "KeyboardMove", &[])
         .with(keyboard::KeyboardRotate, "KeyboardRotate", &[])
-        .with(physics::Physics, "Physics", &["KeyboardMove", "KeyboardRotate"])
+        .with(
+            physics::Physics,
+            "Physics",
+            &["KeyboardMove", "KeyboardRotate"],
+        )
         .build();
 
     let mut world = World::new();
@@ -116,7 +136,7 @@ fn main() -> Result<(), String> {
                     ..
                 } => break 'running,
 
-                // go
+                // move
                 Event::KeyDown {
                     keycode: Some(Keycode::Left),
                     repeat: false,
@@ -162,7 +182,7 @@ fn main() -> Result<(), String> {
                     rotation_command = Some(RotationCommand::Move(Rotation::Clockwise));
                 }
 
-                // stop
+                // stop move
                 Event::KeyUp {
                     keycode: Some(Keycode::Left),
                     repeat: false,
@@ -201,7 +221,6 @@ fn main() -> Result<(), String> {
                 }
 
                 _ => {}
-
             }
         }
 
