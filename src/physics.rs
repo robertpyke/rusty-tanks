@@ -39,10 +39,10 @@ impl<'a> System<'a> for Physics {
         for (angle, angular_vel) in (&mut data.2, &data.3).join() {
             match angular_vel.rotation {
                 Rotation::Clockwise => {
-                    angle.angle += angular_vel.speed;
+                    angle.angle = (angle.angle + angular_vel.speed) % 360;
                 }
                 Rotation::CounterClockwise => {
-                    angle.angle -= angular_vel.speed;
+                    angle.angle = (angle.angle - angular_vel.speed) % 360;
                 }
             }
         }
