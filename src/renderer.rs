@@ -26,7 +26,6 @@ fn render_sprite(
 ) -> Result<(), String> {
     let (width, height) = canvas.output_size()?;
 
-    // println!("Sprite: -> Result<(), String> {:?}", sprite);
     let current_frame = sprite.region;
     // Treat the center of the screen as the (0, 0) coordinate
     let screen_position = pos.0 + Point::new(width as i32 / 2, height as i32 / 2);
