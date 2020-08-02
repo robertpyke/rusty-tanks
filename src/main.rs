@@ -49,11 +49,11 @@ fn initialize_tank(world: &mut World, tank_base_sprite: usize, tank_turret_sprit
             region: Rect::new(0, 0, 32, 32),
         })
         .with(KeyboardControlled {
-            speed: 20,
-            rotation_speed: 1,
+            speed: 20.0,
+            rotation_speed: 2.0,
         })
         .with(Velocity {
-            speed: 0,
+            speed: 0.0,
             direction: Angle {angle: 0.0},
         })
         .build();
@@ -68,18 +68,18 @@ fn initialize_tank(world: &mut World, tank_base_sprite: usize, tank_turret_sprit
             region: Rect::new(0, 0, 32, 32),
         })
         .with(KeyboardControlled {
-            speed: 20,
-            rotation_speed: 1,
+            speed: 20.0,
+            rotation_speed: 2.0,
         })
         .with(Velocity {
-            speed: 0,
+            speed: 0.0,
             direction: Angle {angle: 0.0},
         })
         .with(AngularVelocity {
-            speed: 0,
+            speed: 0.0,
             rotation: Rotation::Clockwise,
         })
-        .with(BulletSpawner {spawning: false, cooldown: 2, cooldown_rem: 0, bullet_speed: 15})
+        .with(BulletSpawner {spawning: false, cooldown: 2, cooldown_rem: 0, bullet_speed: 15.0})
         .build();
 
 
@@ -93,11 +93,11 @@ fn initialize_tank(world: &mut World, tank_base_sprite: usize, tank_turret_sprit
         region: Rect::new(0, 0, 32, 32),
     })
     .with(Velocity {
-        speed: 0,
+        speed: 0.0,
         direction: Angle {angle: 0.0},
     })
     .with(AngularVelocity {
-        speed: 2,
+        speed: 2.0,
         rotation: Rotation::Clockwise,
     })
     .build();
@@ -112,10 +112,10 @@ fn initialize_tank(world: &mut World, tank_base_sprite: usize, tank_turret_sprit
         region: Rect::new(0, 0, 32, 32),
     })
     .with(AngularVelocity {
-        speed: 3,
+        speed: 3.0,
         rotation: Rotation::Clockwise,
     })
-    .with(BulletSpawner {spawning: true, cooldown: 15, cooldown_rem: 0, bullet_speed: 8})
+    .with(BulletSpawner {spawning: true, cooldown: 15, cooldown_rem: 0, bullet_speed: 8.0})
     .build();
 }
 

@@ -25,7 +25,7 @@ pub struct BulletSpawner {
     pub spawning: bool,
     pub cooldown: i32,
     pub cooldown_rem: i32,
-    pub bullet_speed: i32
+    pub bullet_speed: f32
 }
 
 #[derive(Component, Debug, Clone)]
@@ -43,8 +43,8 @@ pub enum Rotation {
 #[derive(Component, Debug, Default)]
 #[storage(VecStorage)]
 pub struct KeyboardControlled {
-    pub speed: i32,
-    pub rotation_speed: i32
+    pub speed: f32,
+    pub rotation_speed: f32
 }
 
 #[derive(Component, Debug, Default, Clone, Copy)]
@@ -57,7 +57,7 @@ pub struct Angle {
 #[derive(Component, Debug)]
 #[storage(VecStorage)]
 pub struct Velocity {
-    pub speed: i32,
+    pub speed: f32,
     pub direction: Angle,
 }
 
@@ -65,6 +65,6 @@ pub struct Velocity {
 #[derive(Component, Debug)]
 #[storage(VecStorage)]
 pub struct AngularVelocity {
-    pub speed: i32,
+    pub speed: f32,
     pub rotation: Rotation,
 }

@@ -35,7 +35,7 @@ impl<'a> System<'a> for KeyboardMove {
                     vel.speed = control.speed;
                     vel.direction = direction;
                 }
-                MovementCommand::Stop => vel.speed = 0,
+                MovementCommand::Stop => vel.speed = 0.0,
             }
         }
     }
@@ -61,10 +61,10 @@ impl<'a> System<'a> for KeyboardRotate {
         for (control, agular_velocity) in (&data.1, &mut data.2).join() {
             match rotation_command {
                 &RotationCommand::Move(rotation) => {
-                    agular_velocity.speed = control.speed;
+                    agular_velocity.speed = control.rotation_speed;
                     agular_velocity.rotation = rotation;
                 }
-                RotationCommand::Stop => agular_velocity.speed = 0,
+                RotationCommand::Stop => agular_velocity.speed = 0.0,
             }
         }
     }

@@ -42,7 +42,7 @@ impl<'a> System<'a> for BulletSpawnerSystem {
                         updater.insert(bullet, Velocity {speed: spawner.bullet_speed, direction: Angle { angle: angle.angle}});
                         updater.insert(bullet, Position(Point::new(pos.0.x, pos.0.y)));
                         updater.insert(bullet, Angle { angle: angle.angle });
-                        updater.insert(bullet, AngularVelocity { speed: 2,  rotation: Rotation::Clockwise});
+                        updater.insert(bullet, AngularVelocity { speed: 2.0,  rotation: Rotation::Clockwise});
                         updater.insert(
                             bullet,
                             Sprite {
