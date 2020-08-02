@@ -23,8 +23,8 @@ pub struct Sprite {
 #[storage(HashMapStorage)]
 pub struct BulletSpawner {
     pub spawning: bool,
-    pub cooldown: i32,
-    pub cooldown_rem: i32,
+    pub cooldown: u32,
+    pub cooldown_rem: u32,
     pub bullet_speed: f32
 }
 

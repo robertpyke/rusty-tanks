@@ -27,30 +27,48 @@ impl<'a> System<'a> for BulletSpawnerSystem {
     fn run(&mut self, mut data: Self::SystemData) {
         let entities = data.3;
         let updater = data.4;
-        //TODO: This code can be made nicer and more idiomatic using more pattern matching.
-        // Look up "rust irrefutable patterns" and use them here.
         for (pos, angle, spawner) in (&data.0, &data.1, &mut data.2).join() {
-            if spawner.cooldown_rem > 0 {
-                spawner.cooldown_rem -= 1;
-            }
-            match spawner.spawning {
-                true => {
-                    if spawner.cooldown_rem <= 0 {
-                        spawner.cooldown_rem = spawner.cooldown;
+            match spawner {
+                BulletSpawner {
+                    spawning: true,
+                    cooldown_rem: 0,
+                    cooldown: _,
+                    bullet_speed: _,
+                } => {
+                    spawner.cooldown_rem = spawner.cooldown;
 
-                        let bullet = entities.create();
-                        updater.insert(bullet, Velocity {speed: spawner.bullet_speed, direction: Angle { angle: angle.angle}});
-                        updater.insert(bullet, Position(Point::new(pos.0.x, pos.0.y)));
-                        updater.insert(bullet, Angle { angle: angle.angle });
-                        updater.insert(bullet, AngularVelocity { speed: 2.0,  rotation: Rotation::Clockwise});
-                        updater.insert(
-                            bullet,
-                            Sprite {
-                                spritesheet: 0,
-                                region: Rect::new(0, 0, 32, 32),
-                            },
-                        );
-                    }
+                    let bullet = entities.create();
+                    updater.insert(
+                        bullet,
+                        Velocity {
+                            speed: spawner.bullet_speed,
+                            direction: Angle { angle: angle.angle },
+                        },
+                    );
+                    updater.insert(bullet, Position(Point::new(pos.0.x, pos.0.y)));
+                    updater.insert(bullet, Angle { angle: angle.angle });
+                    updater.insert(
+                        bullet,
+                        AngularVelocity {
+                            speed: 2.0,
+                            rotation: Rotation::Clockwise,
+                        },
+                    );
+                    updater.insert(
+                        bullet,
+                        Sprite {
+                            spritesheet: 0,
+                            region: Rect::new(0, 0, 32, 32),
+                        },
+                    );
+                }
+                BulletSpawner {
+                    spawning: _,
+                    cooldown_rem: 1..=u32::MAX,
+                    cooldown: _,
+                    bullet_speed: _,
+                } => {
+                    spawner.cooldown_rem -= 1;
                 }
                 _ => {}
             }
