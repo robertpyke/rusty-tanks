@@ -1,3 +1,4 @@
+use specs::HashMapStorage;
 use sdl2::rect::{Point, Rect};
 use specs::Component;
 use specs::VecStorage;
@@ -16,6 +17,15 @@ pub struct Sprite {
     pub spritesheet: usize,
     /// The current region of the spritesheet to be rendered
     pub region: Rect,
+}
+
+#[derive(Component, Debug)]
+#[storage(HashMapStorage)]
+pub struct BulletSpawner {
+    pub spawning: bool,
+    pub cooldown: i32,
+    pub cooldown_rem: i32,
+    pub bullet_speed: i32
 }
 
 #[derive(Component, Debug, Clone)]

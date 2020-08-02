@@ -3,6 +3,8 @@ mod keyboard;
 mod physics;
 mod renderer;
 mod resources;
+mod bulletspawner_system;
+use crate::components::BulletSpawner;
 use specs::prelude::*;
 
 use crate::components::Angle;
@@ -21,13 +23,20 @@ use sdl2::rect::{Point, Rect};
 use specs::prelude::{DispatcherBuilder, SystemData, World};
 
 use crate::components::{KeyboardControlled, Position, Sprite, Velocity};
+
 pub enum RotationCommand {
     Stop,
     Move(Rotation),
 }
+
 pub enum MovementCommand {
     Stop,
     Move(Direction),
+}
+
+pub enum FireCommand {
+    Stop,
+    Fire,
 }
 
 fn initialize_tank(world: &mut World, tank_base_sprite: usize, tank_turret_sprite: usize) {
@@ -71,6 +80,7 @@ fn initialize_tank(world: &mut World, tank_base_sprite: usize, tank_turret_sprit
             speed: 0,
             rotation: Rotation::Clockwise,
         })
+        .with(BulletSpawner {spawning: false, cooldown: 10, cooldown_rem: 0, bullet_speed: 5})
         .build();
 
 
@@ -106,6 +116,7 @@ fn initialize_tank(world: &mut World, tank_base_sprite: usize, tank_turret_sprit
         speed: 3,
         rotation: Rotation::Clockwise,
     })
+    .with(BulletSpawner {spawning: true, cooldown: 5, cooldown_rem: 0, bullet_speed: 1})
     .build();
 }
 
@@ -127,12 +138,14 @@ fn main() -> Result<(), String> {
     let texture_creator = canvas.texture_creator();
 
     let mut dispatcher = DispatcherBuilder::new()
+        .with(keyboard::KeyboardShoot, "KeyboardShoot", &[])
         .with(keyboard::KeyboardMove, "KeyboardMove", &[])
         .with(keyboard::KeyboardRotate, "KeyboardRotate", &[])
+        .with(bulletspawner_system::BulletSpawnerSystem, "BulletSpawnerSystem", &["KeyboardShoot", "KeyboardMove", "KeyboardRotate"])
         .with(
             physics::Physics,
             "Physics",
-            &["KeyboardMove", "KeyboardRotate"],
+            &["BulletSpawnerSystem", "KeyboardShoot", "KeyboardMove", "KeyboardRotate"],
         )
         .build();
 
@@ -141,8 +154,11 @@ fn main() -> Result<(), String> {
     renderer::SystemData::setup(&mut world);
 
     // Initialize resource
-    let movement_command_one: Option<MovementCommand> = None;
-    world.insert(movement_command_one);
+    let movement_command: Option<MovementCommand> = None;
+    world.insert(movement_command);
+
+    let fire_command: Option<FireCommand> = None;
+    world.insert(fire_command);
 
     let rotation_command: Option<RotationCommand> = None;
     world.insert(rotation_command);
@@ -161,6 +177,7 @@ fn main() -> Result<(), String> {
         // None - no change, Some(MovementCommand) - perform movement
         let mut movement_command_one = None;
         let mut rotation_command = None;
+        let mut fire_command = None;
 
         // Handle events
         for event in event_pump.poll_iter() {
@@ -217,6 +234,15 @@ fn main() -> Result<(), String> {
                     rotation_command = Some(RotationCommand::Move(Rotation::Clockwise));
                 }
 
+                // fire
+                Event::KeyDown {
+                    keycode: Some(Keycode::Space),
+                    repeat: false,
+                    ..
+                } => {
+                    fire_command = Some(FireCommand::Fire);
+                }
+
                 // stop move
                 Event::KeyUp {
                     keycode: Some(Keycode::Left),
@@ -255,6 +281,15 @@ fn main() -> Result<(), String> {
                     rotation_command = Some(RotationCommand::Stop);
                 }
 
+                // stop fire
+                Event::KeyUp {
+                    keycode: Some(Keycode::Space),
+                    repeat: false,
+                    ..
+                } => {
+                    fire_command = Some(FireCommand::Stop);
+                }
+
                 _ => {}
             }
         }
@@ -262,6 +297,8 @@ fn main() -> Result<(), String> {
         *world.write_resource() = movement_command_one;
         // println!("{:?}", rotation_command);
         *world.write_resource() = rotation_command;
+        *world.write_resource() = fire_command;
+        
 
         // Update
         dispatcher.dispatch(&mut world);

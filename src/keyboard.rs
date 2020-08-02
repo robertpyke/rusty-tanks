@@ -1,3 +1,5 @@
+use crate::components::BulletSpawner;
+use crate::FireCommand;
 use crate::components::AngularVelocity;
 use crate::components::KeyboardControlled;
 use crate::components::Velocity;
@@ -63,6 +65,34 @@ impl<'a> System<'a> for KeyboardRotate {
                     agular_velocity.rotation = rotation;
                 }
                 RotationCommand::Stop => agular_velocity.speed = 0,
+            }
+        }
+    }
+}
+
+pub struct KeyboardShoot;
+
+impl<'a> System<'a> for KeyboardShoot {
+    type SystemData = (
+        ReadExpect<'a, Option<FireCommand>>,
+        ReadStorage<'a, KeyboardControlled>,
+        WriteStorage<'a, BulletSpawner>,
+    );
+
+    fn run(&mut self, mut data: Self::SystemData) {
+        //TODO: This code can be made nicer and more idiomatic using more pattern matching.
+        // Look up "rust irrefutable patterns" and use them here.
+        let fire_command = match &*data.0 {
+            Some(fire_command) => fire_command,
+            None => return, // no change
+        };
+
+        for (spawner, _kc) in (&mut data.2, &data.1).join() {
+            match fire_command {
+                &FireCommand::Fire => {
+                    spawner.spawning = true;
+                }
+                FireCommand::Stop => {spawner.spawning = false;}
             }
         }
     }
