@@ -1,5 +1,4 @@
 use crate::components::Angle;
-use crate::components::LayeredSprite;
 use crate::components::Position;
 use crate::components::Sprite;
 use sdl2::pixels::Color;
