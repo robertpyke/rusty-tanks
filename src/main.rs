@@ -44,7 +44,7 @@ fn initialize_tank(world: &mut World, tank_base_sprite: usize, tank_turret_sprit
     world
         .create_entity()
         .with(Position(Point::new(0, 0)))
-        .with(Angle { angle: 0 })
+        .with(Angle { angle: 0.0 })
         .with(Sprite {
             spritesheet: tank_base_sprite,
             region: Rect::new(0, 0, 32, 32),
@@ -55,7 +55,7 @@ fn initialize_tank(world: &mut World, tank_base_sprite: usize, tank_turret_sprit
         })
         .with(Velocity {
             speed: 0,
-            direction: Direction::Right,
+            direction: Direction {angle: 0.0},
         })
         .build();
 
@@ -63,7 +63,7 @@ fn initialize_tank(world: &mut World, tank_base_sprite: usize, tank_turret_sprit
     world
         .create_entity()
         .with(Position(Point::new(0, 0)))
-        .with(Angle { angle: 0 })
+        .with(Angle { angle: 0.0 })
         .with(Sprite {
             spritesheet: tank_turret_sprite,
             region: Rect::new(0, 0, 32, 32),
@@ -74,13 +74,13 @@ fn initialize_tank(world: &mut World, tank_base_sprite: usize, tank_turret_sprit
         })
         .with(Velocity {
             speed: 0,
-            direction: Direction::Right,
+            direction: Direction {angle: 0.0},
         })
         .with(AngularVelocity {
             speed: 0,
             rotation: Rotation::Clockwise,
         })
-        .with(BulletSpawner {spawning: false, cooldown: 10, cooldown_rem: 0, bullet_speed: 5})
+        .with(BulletSpawner {spawning: false, cooldown: 2, cooldown_rem: 0, bullet_speed: 15})
         .build();
 
 
@@ -88,14 +88,14 @@ fn initialize_tank(world: &mut World, tank_base_sprite: usize, tank_turret_sprit
     world
     .create_entity()
     .with(Position(Point::new(10, 0)))
-    .with(Angle { angle: 0 })
+    .with(Angle { angle: 0.0 })
     .with(Sprite {
         spritesheet: tank_base_sprite,
         region: Rect::new(0, 0, 32, 32),
     })
     .with(Velocity {
         speed: 0,
-        direction: Direction::Right,
+        direction: Direction {angle: 0.0},
     })
     .with(AngularVelocity {
         speed: 2,
@@ -107,7 +107,7 @@ fn initialize_tank(world: &mut World, tank_base_sprite: usize, tank_turret_sprit
     world
     .create_entity()
     .with(Position(Point::new(10, 0)))
-    .with(Angle { angle: 10 })
+    .with(Angle { angle: 10.0 })
     .with(Sprite {
         spritesheet: tank_turret_sprite,
         region: Rect::new(0, 0, 32, 32),
@@ -116,7 +116,7 @@ fn initialize_tank(world: &mut World, tank_base_sprite: usize, tank_turret_sprit
         speed: 3,
         rotation: Rotation::Clockwise,
     })
-    .with(BulletSpawner {spawning: true, cooldown: 5, cooldown_rem: 0, bullet_speed: 1})
+    .with(BulletSpawner {spawning: true, cooldown: 15, cooldown_rem: 0, bullet_speed: 8})
     .build();
 }
 
@@ -194,28 +194,28 @@ fn main() -> Result<(), String> {
                     repeat: false,
                     ..
                 } => {
-                    movement_command_one = Some(MovementCommand::Move(Direction::Left));
+                    movement_command_one = Some(MovementCommand::Move(Direction {angle: 180.0}));
                 }
                 Event::KeyDown {
                     keycode: Some(Keycode::Right),
                     repeat: false,
                     ..
                 } => {
-                    movement_command_one = Some(MovementCommand::Move(Direction::Right));
+                    movement_command_one = Some(MovementCommand::Move(Direction {angle: 0.0}));
                 }
                 Event::KeyDown {
                     keycode: Some(Keycode::Up),
                     repeat: false,
                     ..
                 } => {
-                    movement_command_one = Some(MovementCommand::Move(Direction::Up));
+                    movement_command_one = Some(MovementCommand::Move(Direction {angle: 270.0}));
                 }
                 Event::KeyDown {
                     keycode: Some(Keycode::Down),
                     repeat: false,
                     ..
                 } => {
-                    movement_command_one = Some(MovementCommand::Move(Direction::Down));
+                    movement_command_one = Some(MovementCommand::Move(Direction {angle: 90.0}));
                 }
 
                 // rotate

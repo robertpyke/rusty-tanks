@@ -12,7 +12,6 @@ use specs::ReadStorage;
 pub type SystemData<'a> = (
     ReadStorage<'a, Position>,
     ReadStorage<'a, Sprite>,
-    ReadStorage<'a, LayeredSprite>,
     ReadStorage<'a, Angle>,
 );
 
@@ -20,7 +19,7 @@ pub type SystemData<'a> = (
 fn render_sprite(
     canvas: &mut WindowCanvas,
     pos: &Position,
-    angle: i32,
+    angle: f32,
     sprite: &Sprite,
     textures: &[Texture],
 ) -> Result<(), String> {
@@ -48,14 +47,8 @@ pub fn render(
     canvas.set_draw_color(background);
     canvas.clear();
 
-    for (pos, sprite, angle) in (&data.0, &data.1, &data.3).join() {
+    for (pos, sprite, angle) in (&data.0, &data.1, &data.2).join() {
         render_sprite(canvas, pos, angle.angle, sprite, textures)?;
-    }
-
-    for (pos, sprite_layer, angle) in (&data.0, &data.2, &data.3).join() {
-        for sprite in &sprite_layer.sprites {
-            render_sprite(canvas, pos, angle.angle, sprite, textures)?;
-        }
     }
 
     canvas.present();

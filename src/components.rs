@@ -34,12 +34,9 @@ pub struct LayeredSprite {
     pub sprites: Vec<Sprite>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Direction {
-    Up,
-    Down,
-    Left,
-    Right,
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Direction {
+    pub angle: f32
 }
 
 
@@ -60,7 +57,7 @@ pub struct KeyboardControlled {
 #[derive(Component, Debug, Default)]
 #[storage(VecStorage)]
 pub struct Angle {
-    pub angle: i32
+    pub angle: f32
 }
 
 /// The current speed and Direction of a given entity

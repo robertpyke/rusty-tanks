@@ -40,10 +40,10 @@ impl<'a> System<'a> for BulletSpawnerSystem {
                         spawner.cooldown_rem = spawner.cooldown;
 
                         let bullet = entities.create();
-                        updater.insert(bullet, Velocity {speed: spawner.bullet_speed, direction: Direction::Up});
+                        updater.insert(bullet, Velocity {speed: spawner.bullet_speed, direction: Direction { angle: angle.angle}});
                         updater.insert(bullet, Position(Point::new(pos.0.x, pos.0.y)));
                         updater.insert(bullet, Angle { angle: angle.angle });
-                        updater.insert(bullet, AngularVelocity { speed: 10,  rotation: Rotation::Clockwise});
+                        updater.insert(bullet, AngularVelocity { speed: 2,  rotation: Rotation::Clockwise});
                         updater.insert(
                             bullet,
                             Sprite {
@@ -51,7 +51,6 @@ impl<'a> System<'a> for BulletSpawnerSystem {
                                 region: Rect::new(0, 0, 32, 32),
                             },
                         );
-                        println!("Fire: {:?}", spawner);
                     }
                 }
                 _ => {}
