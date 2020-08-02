@@ -32,7 +32,15 @@ fn render_sprite(
         current_frame.width(),
         current_frame.height(),
     );
-    canvas.copy_ex(&textures[sprite.spritesheet], current_frame, screen_rect, angle.into(), current_frame.center(), false, false)?;
+    canvas.copy_ex(
+        &textures[sprite.spritesheet],
+        current_frame,
+        screen_rect,
+        angle.into(),
+        current_frame.center(),
+        false,
+        false,
+    )?;
 
     Ok(())
 }

@@ -1,6 +1,6 @@
-use specs::HashMapStorage;
 use sdl2::rect::{Point, Rect};
 use specs::Component;
+use specs::HashMapStorage;
 use specs::VecStorage;
 use specs_derive::Component;
 
@@ -25,7 +25,7 @@ pub struct BulletSpawner {
     pub spawning: bool,
     pub cooldown: u32,
     pub cooldown_rem: u32,
-    pub bullet_speed: f32
+    pub bullet_speed: f32,
 }
 
 #[derive(Component, Debug, Clone)]
@@ -37,20 +37,20 @@ pub struct LayeredSprite {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Rotation {
     Clockwise,
-    CounterClockwise
+    CounterClockwise,
 }
 
 #[derive(Component, Debug, Default)]
 #[storage(VecStorage)]
 pub struct KeyboardControlled {
     pub speed: f32,
-    pub rotation_speed: f32
+    pub rotation_speed: f32,
 }
 
 #[derive(Component, Debug, Default, Clone, Copy)]
 #[storage(VecStorage)]
 pub struct Angle {
-    pub angle: f32
+    pub angle: f32,
 }
 
 /// The current speed and Direction of a given entity

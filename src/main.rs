@@ -1,9 +1,9 @@
+mod bulletspawner_system;
 mod components;
 mod keyboard;
 mod physics;
 mod renderer;
 mod resources;
-mod bulletspawner_system;
 use crate::components::BulletSpawner;
 use specs::prelude::*;
 
@@ -54,7 +54,7 @@ fn initialize_tank(world: &mut World, tank_base_sprite: usize, tank_turret_sprit
         })
         .with(Velocity {
             speed: 0.0,
-            direction: Angle {angle: 0.0},
+            direction: Angle { angle: 0.0 },
         })
         .build();
 
@@ -73,50 +73,59 @@ fn initialize_tank(world: &mut World, tank_base_sprite: usize, tank_turret_sprit
         })
         .with(Velocity {
             speed: 0.0,
-            direction: Angle {angle: 0.0},
+            direction: Angle { angle: 0.0 },
         })
         .with(AngularVelocity {
             speed: 0.0,
             rotation: Rotation::Clockwise,
         })
-        .with(BulletSpawner {spawning: false, cooldown: 2, cooldown_rem: 0, bullet_speed: 15.0})
+        .with(BulletSpawner {
+            spawning: false,
+            cooldown: 2,
+            cooldown_rem: 0,
+            bullet_speed: 15.0,
+        })
         .build();
-
 
     // Init the base
     world
-    .create_entity()
-    .with(Position(Point::new(10, 0)))
-    .with(Angle { angle: 0.0 })
-    .with(Sprite {
-        spritesheet: tank_base_sprite,
-        region: Rect::new(0, 0, 32, 32),
-    })
-    .with(Velocity {
-        speed: 0.0,
-        direction: Angle {angle: 0.0},
-    })
-    .with(AngularVelocity {
-        speed: 2.0,
-        rotation: Rotation::Clockwise,
-    })
-    .build();
+        .create_entity()
+        .with(Position(Point::new(10, 0)))
+        .with(Angle { angle: 0.0 })
+        .with(Sprite {
+            spritesheet: tank_base_sprite,
+            region: Rect::new(0, 0, 32, 32),
+        })
+        .with(Velocity {
+            speed: 0.0,
+            direction: Angle { angle: 0.0 },
+        })
+        .with(AngularVelocity {
+            speed: 2.0,
+            rotation: Rotation::Clockwise,
+        })
+        .build();
 
-    // Init the turret  
+    // Init the turret
     world
-    .create_entity()
-    .with(Position(Point::new(10, 0)))
-    .with(Angle { angle: 10.0 })
-    .with(Sprite {
-        spritesheet: tank_turret_sprite,
-        region: Rect::new(0, 0, 32, 32),
-    })
-    .with(AngularVelocity {
-        speed: 3.0,
-        rotation: Rotation::Clockwise,
-    })
-    .with(BulletSpawner {spawning: true, cooldown: 15, cooldown_rem: 0, bullet_speed: 8.0})
-    .build();
+        .create_entity()
+        .with(Position(Point::new(10, 0)))
+        .with(Angle { angle: 10.0 })
+        .with(Sprite {
+            spritesheet: tank_turret_sprite,
+            region: Rect::new(0, 0, 32, 32),
+        })
+        .with(AngularVelocity {
+            speed: 3.0,
+            rotation: Rotation::Clockwise,
+        })
+        .with(BulletSpawner {
+            spawning: true,
+            cooldown: 15,
+            cooldown_rem: 0,
+            bullet_speed: 8.0,
+        })
+        .build();
 }
 
 fn main() -> Result<(), String> {
@@ -140,11 +149,20 @@ fn main() -> Result<(), String> {
         .with(keyboard::KeyboardShoot, "KeyboardShoot", &[])
         .with(keyboard::KeyboardMove, "KeyboardMove", &[])
         .with(keyboard::KeyboardRotate, "KeyboardRotate", &[])
-        .with(bulletspawner_system::BulletSpawnerSystem, "BulletSpawnerSystem", &["KeyboardShoot", "KeyboardMove", "KeyboardRotate"])
+        .with(
+            bulletspawner_system::BulletSpawnerSystem,
+            "BulletSpawnerSystem",
+            &["KeyboardShoot", "KeyboardMove", "KeyboardRotate"],
+        )
         .with(
             physics::Physics,
             "Physics",
-            &["BulletSpawnerSystem", "KeyboardShoot", "KeyboardMove", "KeyboardRotate"],
+            &[
+                "BulletSpawnerSystem",
+                "KeyboardShoot",
+                "KeyboardMove",
+                "KeyboardRotate",
+            ],
         )
         .build();
 
@@ -193,28 +211,28 @@ fn main() -> Result<(), String> {
                     repeat: false,
                     ..
                 } => {
-                    movement_command_one = Some(MovementCommand::Move(Angle {angle: 180.0}));
+                    movement_command_one = Some(MovementCommand::Move(Angle { angle: 180.0 }));
                 }
                 Event::KeyDown {
                     keycode: Some(Keycode::Right),
                     repeat: false,
                     ..
                 } => {
-                    movement_command_one = Some(MovementCommand::Move(Angle {angle: 0.0}));
+                    movement_command_one = Some(MovementCommand::Move(Angle { angle: 0.0 }));
                 }
                 Event::KeyDown {
                     keycode: Some(Keycode::Up),
                     repeat: false,
                     ..
                 } => {
-                    movement_command_one = Some(MovementCommand::Move(Angle {angle: 270.0}));
+                    movement_command_one = Some(MovementCommand::Move(Angle { angle: 270.0 }));
                 }
                 Event::KeyDown {
                     keycode: Some(Keycode::Down),
                     repeat: false,
                     ..
                 } => {
-                    movement_command_one = Some(MovementCommand::Move(Angle {angle: 90.0}));
+                    movement_command_one = Some(MovementCommand::Move(Angle { angle: 90.0 }));
                 }
 
                 // rotate
@@ -297,7 +315,6 @@ fn main() -> Result<(), String> {
         // println!("{:?}", rotation_command);
         *world.write_resource() = rotation_command;
         *world.write_resource() = fire_command;
-        
 
         // Update
         dispatcher.dispatch(&mut world);

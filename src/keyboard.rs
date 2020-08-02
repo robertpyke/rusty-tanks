@@ -1,8 +1,8 @@
-use crate::components::BulletSpawner;
-use crate::FireCommand;
 use crate::components::AngularVelocity;
+use crate::components::BulletSpawner;
 use crate::components::KeyboardControlled;
 use crate::components::Velocity;
+use crate::FireCommand;
 use specs::join::Join;
 use specs::storage::WriteStorage;
 use specs::ReadExpect;
@@ -57,7 +57,6 @@ impl<'a> System<'a> for KeyboardRotate {
             Some(rotation_command) => rotation_command,
             None => return, // no change
         };
-        
         for (control, agular_velocity) in (&data.1, &mut data.2).join() {
             match rotation_command {
                 &RotationCommand::Move(rotation) => {
@@ -92,7 +91,9 @@ impl<'a> System<'a> for KeyboardShoot {
                 &FireCommand::Fire => {
                     spawner.spawning = true;
                 }
-                FireCommand::Stop => {spawner.spawning = false;}
+                FireCommand::Stop => {
+                    spawner.spawning = false;
+                }
             }
         }
     }
