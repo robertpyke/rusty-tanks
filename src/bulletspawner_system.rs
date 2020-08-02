@@ -1,7 +1,6 @@
 use crate::components::Angle;
 use crate::components::AngularVelocity;
 use crate::components::BulletSpawner;
-use crate::components::Direction;
 use crate::components::Position;
 use crate::components::Rotation;
 use crate::components::Sprite;
@@ -40,7 +39,7 @@ impl<'a> System<'a> for BulletSpawnerSystem {
                         spawner.cooldown_rem = spawner.cooldown;
 
                         let bullet = entities.create();
-                        updater.insert(bullet, Velocity {speed: spawner.bullet_speed, direction: Direction { angle: angle.angle}});
+                        updater.insert(bullet, Velocity {speed: spawner.bullet_speed, direction: Angle { angle: angle.angle}});
                         updater.insert(bullet, Position(Point::new(pos.0.x, pos.0.y)));
                         updater.insert(bullet, Angle { angle: angle.angle });
                         updater.insert(bullet, AngularVelocity { speed: 2,  rotation: Rotation::Clockwise});

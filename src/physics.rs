@@ -1,7 +1,6 @@
 use core::f32::consts::PI;
 use crate::components::Angle;
 use crate::components::AngularVelocity;
-use crate::components::Direction;
 use crate::components::Position;
 use crate::components::Velocity;
 use crate::components::Rotation;

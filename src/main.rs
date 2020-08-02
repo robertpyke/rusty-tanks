@@ -9,7 +9,6 @@ use specs::prelude::*;
 
 use crate::components::Angle;
 use crate::components::AngularVelocity;
-use crate::components::Direction;
 use crate::components::Rotation;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -31,7 +30,7 @@ pub enum RotationCommand {
 
 pub enum MovementCommand {
     Stop,
-    Move(Direction),
+    Move(Angle),
 }
 
 pub enum FireCommand {
@@ -55,7 +54,7 @@ fn initialize_tank(world: &mut World, tank_base_sprite: usize, tank_turret_sprit
         })
         .with(Velocity {
             speed: 0,
-            direction: Direction {angle: 0.0},
+            direction: Angle {angle: 0.0},
         })
         .build();
 
@@ -74,7 +73,7 @@ fn initialize_tank(world: &mut World, tank_base_sprite: usize, tank_turret_sprit
         })
         .with(Velocity {
             speed: 0,
-            direction: Direction {angle: 0.0},
+            direction: Angle {angle: 0.0},
         })
         .with(AngularVelocity {
             speed: 0,
@@ -95,7 +94,7 @@ fn initialize_tank(world: &mut World, tank_base_sprite: usize, tank_turret_sprit
     })
     .with(Velocity {
         speed: 0,
-        direction: Direction {angle: 0.0},
+        direction: Angle {angle: 0.0},
     })
     .with(AngularVelocity {
         speed: 2,
@@ -194,28 +193,28 @@ fn main() -> Result<(), String> {
                     repeat: false,
                     ..
                 } => {
-                    movement_command_one = Some(MovementCommand::Move(Direction {angle: 180.0}));
+                    movement_command_one = Some(MovementCommand::Move(Angle {angle: 180.0}));
                 }
                 Event::KeyDown {
                     keycode: Some(Keycode::Right),
                     repeat: false,
                     ..
                 } => {
-                    movement_command_one = Some(MovementCommand::Move(Direction {angle: 0.0}));
+                    movement_command_one = Some(MovementCommand::Move(Angle {angle: 0.0}));
                 }
                 Event::KeyDown {
                     keycode: Some(Keycode::Up),
                     repeat: false,
                     ..
                 } => {
-                    movement_command_one = Some(MovementCommand::Move(Direction {angle: 270.0}));
+                    movement_command_one = Some(MovementCommand::Move(Angle {angle: 270.0}));
                 }
                 Event::KeyDown {
                     keycode: Some(Keycode::Down),
                     repeat: false,
                     ..
                 } => {
-                    movement_command_one = Some(MovementCommand::Move(Direction {angle: 90.0}));
+                    movement_command_one = Some(MovementCommand::Move(Angle {angle: 90.0}));
                 }
 
                 // rotate
